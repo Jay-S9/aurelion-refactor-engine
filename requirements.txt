@@ -1,0 +1,13 @@
+# Aurelion Refactor Engine v5 — Python Dependencies
+#
+# Core: Python standard library only (Python 3.11+).
+# Python 3.9 / 3.10: tomli for TOML support.
+#
+# v5 stdlib additions used:
+#   hashlib       — SHA-256 file hashing (incremental engine)
+#   uuid          — run ID generation
+#   tempfile      — atomic writes
+#   platform      — environment metadata
+#   threading     — thread-safe state, conflict locking
+
+tomli>=2.0.0; python_version < "3.11"

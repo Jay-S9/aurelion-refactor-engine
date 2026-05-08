@@ -1,0 +1,76 @@
+[build-system]
+requires      = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name        = "aurelion-refactor-engine"
+version     = "7.0.1"
+description = "Intelligent, production-ready codebase refactoring automation platform"
+readme      = "README.md"
+license     = {text = "MIT"}
+requires-python = ">=3.9"
+
+authors = [
+  {name = "Aurelion Project"},
+]
+
+keywords = [
+  "refactoring", "automation", "code-migration",
+  "ai", "cli", "devtools", "text-processing",
+]
+
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: Software Development :: Code Generators",
+  "Topic :: Utilities",
+]
+
+# Core runtime deps — all stdlib, no mandatory third-party
+dependencies = []
+
+[project.optional-dependencies]
+toml = ["tomli>=2.0.0; python_version<'3.11'"]
+server = []          # http.server is stdlib
+ai = []              # uses urllib.request (stdlib); set ANTHROPIC_API_KEY
+dev = [
+  "pytest>=7",
+  "pytest-cov",
+  "tomli>=2.0.0",
+]
+
+[project.scripts]
+aurelion = "main:main"
+
+[project.urls]
+Homepage   = "https://github.com/aurelion/refactor-engine"
+Repository = "https://github.com/aurelion/refactor-engine"
+Issues     = "https://github.com/aurelion/refactor-engine/issues"
+
+[tool.setuptools]
+packages = {find = {exclude = ["tests*", "*.tests"]}}
+
+[tool.setuptools.package-data]
+"*" = [
+  "web/*.html",
+  "web/*.js",
+  "web/*.css",
+  "profiles/*.toml",
+  "config/*.toml",
+  "examples/*.toml",
+  "plugins/*.py",
+]
+
+[tool.pytest.ini_options]
+testpaths   = ["tests"]
+python_files = ["test_*.py"]
+addopts     = "-v --tb=short"

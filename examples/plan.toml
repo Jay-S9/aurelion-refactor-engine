@@ -1,0 +1,75 @@
+# ══════════════════════════════════════════════════════════════════
+#  Aurelion Refactor Engine v3 — Example Plan File
+#
+#  Run with:
+#    aurelion run plan.toml            ← execute
+#    aurelion run plan.toml --dry-run  ← preview
+#    aurelion run plan.toml --workers 8
+#    aurelion run plan.toml --validate ← validate only
+#
+#  Generate a fresh copy:
+#    aurelion run --example > plan.toml
+# ══════════════════════════════════════════════════════════════════
+
+[plan]
+name = "Project Migration v1 → v2"
+
+# ── Plan-wide defaults (overridden per rule) ──────────────────────
+[defaults]
+encoding     = "utf-8"
+no_backup    = false
+workers      = 4
+exclude_dirs = [".git", "__pycache__", "node_modules", ".venv", "backups"]
+
+# ══════════════════════════════════════════════════════════════════
+# RULE 1 — Replace API endpoint URLs across all Python files
+# ══════════════════════════════════════════════════════════════════
+[[rules]]
+name    = "update-api-url"
+type    = "replace"
+find    = "http://old-api.internal/v1"
+replace = "https://new-api.internal/v2"
+target  = "**/*.py"
+
+# ══════════════════════════════════════════════════════════════════
+# RULE 2 — Mark all TODO items as DONE in documentation
+# ══════════════════════════════════════════════════════════════════
+[[rules]]
+name             = "mark-todos-done"
+type             = "replace"
+find             = "TODO"
+replace          = "DONE"
+target           = "**/*.md"
+case_insensitive = true
+
+# ══════════════════════════════════════════════════════════════════
+# RULE 3 — Bump version string in all config files
+# ══════════════════════════════════════════════════════════════════
+[[rules]]
+name    = "bump-version"
+type    = "replace"
+find    = "version = \"1.0.0\""
+replace = "version = \"2.0.0\""
+target  = "**/*.toml"
+
+# ══════════════════════════════════════════════════════════════════
+# RULE 4 — Replace legacy config files with new templates
+# ══════════════════════════════════════════════════════════════════
+[[rules]]
+name      = "distribute-config-template"
+type      = "replace_file"
+source    = "config/aurelion.toml"
+target    = "**/aurelion.toml"
+overwrite = true
+enabled   = false         # ← disabled; enable when template is ready
+
+# ══════════════════════════════════════════════════════════════════
+# RULE 5 — Inject project header into all Python source files
+# ══════════════════════════════════════════════════════════════════
+[[rules]]
+name   = "inject-license-header"
+type   = "inject"
+source = "config/aurelion.toml"    # using config as a stand-in template
+target = "**/*.py"
+mode   = "append"
+enabled = false          # ← disabled by default; enable when ready
