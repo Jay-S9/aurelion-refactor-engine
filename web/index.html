@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurelion v7 — Dashboard</title>
+<style>
+  :root {
+    --bg:      #0d1117;
+    --bg2:     #161b22;
+    --bg3:     #21262d;
+    --border:  #30363d;
+    --text:    #c9d1d9;
+    --muted:   #8b949e;
+    --accent:  #58a6ff;
+    --green:   #3fb950;
+    --yellow:  #d29922;
+    --red:     #f85149;
+    --purple:  #bc8cff;
+    --radius:  8px;
+    --mono:    'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .logo h1 { font-size: 16px; font-weight: 700; color: var(--accent); }
+  .logo span { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px; cursor: pointer;
+    color: var(--muted); border-left: 3px solid transparent;
+    transition: all 0.15s; font-size: 13px;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg3); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(88,166,255,.06); }
+  .nav-icon { width: 18px; text-align: center; }
+  .sidebar-footer {
+    margin-top: auto; padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px; color: var(--muted);
+  }
+  .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 6px; }
+
+  /* ── Main content ── */
+  .main { overflow-y: auto; }
+  .page { display: none; padding: 28px; }
+  .page.active { display: block; }
+  .page-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+
+  /* ── Stat grid ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .stat-value { font-size: 28px; font-weight: 700; font-family: var(--mono); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .stat-card.green .stat-value { color: var(--green); }
+  .stat-card.blue  .stat-value { color: var(--accent); }
+  .stat-card.red   .stat-value { color: var(--red); }
+  .stat-card.yellow .stat-value { color: var(--yellow); }
+
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 12px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); font-weight: 600; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 12px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg3); }
+
+  /* ── Badges ── */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; font-family: var(--mono); }
+  .badge-green  { background: rgba(63,185,80,.15); color: var(--green); }
+  .badge-red    { background: rgba(248,81,73,.15);  color: var(--red); }
+  .badge-yellow { background: rgba(210,153,34,.15); color: var(--yellow); }
+  .badge-blue   { background: rgba(88,166,255,.15); color: var(--accent); }
+  .badge-muted  { background: var(--bg3); color: var(--muted); }
+
+  /* ── Forms ── */
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+  input, textarea, select {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text); border-radius: 6px; padding: 8px 12px; font-size: 13px;
+    font-family: var(--mono);
+    transition: border-color 0.15s;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 100px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    border: none; cursor: pointer; transition: all 0.15s;
+  }
+  .btn-primary { background: var(--accent); color: #0d1117; }
+  .btn-primary:hover { background: #79c0ff; }
+  .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: rgba(248,81,73,.15); color: var(--red); border: 1px solid rgba(248,81,73,.3); }
+
+  /* ── Code output ── */
+  .code-block {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px; font-family: var(--mono);
+    font-size: 12px; line-height: 1.6; overflow-x: auto;
+    white-space: pre-wrap; word-break: break-word;
+    max-height: 400px; overflow-y: auto;
+  }
+  .code-block.hidden { display: none; }
+
+  /* ── Progress bar ── */
+  .progress-wrap { background: var(--bg3); border-radius: 4px; height: 8px; overflow: hidden; margin: 8px 0; }
+  .progress-bar  { height: 100%; border-radius: 4px; background: var(--accent); transition: width 0.3s; }
+
+  /* ── Alert ── */
+  .alert { padding: 12px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+  .alert-error   { background: rgba(248,81,73,.1);  border: 1px solid rgba(248,81,73,.3);  color: var(--red); }
+  .alert-success { background: rgba(63,185,80,.1);  border: 1px solid rgba(63,185,80,.3);  color: var(--green); }
+  .alert-info    { background: rgba(88,166,255,.1); border: 1px solid rgba(88,166,255,.3); color: var(--accent); }
+  .alert { display: none; }
+  .alert.show { display: block; }
+
+  /* ── Spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="logo">
+      <h1>⚡ Aurelion</h1>
+      <span id="version-tag">v7.0.0</span>
+    </div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('run')">
+      <span class="nav-icon">▶️</span> Run Plan
+    </div>
+    <div class="nav-item" onclick="showPage('preview')">
+      <span class="nav-icon">👁</span> Preview Plan
+    </div>
+    <div class="nav-item" onclick="showPage('history')">
+      <span class="nav-icon">📋</span> History
+    </div>
+    <div class="nav-item" onclick="showPage('ai')">
+      <span class="nav-icon">🤖</span> AI Planner
+    </div>
+    <div class="sidebar-footer">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Connecting…</span>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Dashboard Page -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card blue"><div class="stat-value" id="s-total">—</div><div class="stat-label">Total Runs</div></div>
+        <div class="stat-card green"><div class="stat-value" id="s-success">—</div><div class="stat-label">Succeeded</div></div>
+        <div class="stat-card red"><div class="stat-value" id="s-failed">—</div><div class="stat-label">Failed</div></div>
+        <div class="stat-card yellow"><div class="stat-value" id="s-modified">—</div><div class="stat-label">Files Modified</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recent Runs</div>
+        <div class="table-wrap">
+          <table id="recent-table">
+            <thead><tr><th>Run ID</th><th>Plan</th><th>Status</th><th>Duration</th><th>Dry</th><th>Date</th></tr></thead>
+            <tbody id="recent-tbody"><tr><td colspan="6" style="color:var(--muted)">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Run Page -->
+    <div class="page" id="page-run">
+      <div class="page-title">Run Plan</div>
+      <div class="card">
+        <div class="form-group">
+          <label>Plan File Path</label>
+          <input type="text" id="run-path" placeholder="/path/to/plan.toml" />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label>Group filter (optional)</label>
+            <input type="text" id="run-group" placeholder="core" />
+          </div>
+          <div class="form-group">
+            <label>Tag filter (optional)</label>
+            <input type="text" id="run-tag" placeholder="safe" />
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px">
+          <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer">
+            <input type="checkbox" id="run-dry"> Dry run (no files modified)
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer;margin-left:16px">
+            <input type="checkbox" id="run-strict" checked> Strict mode
+          </label>
+        </div>
+        <div class="alert alert-error" id="run-alert-err"></div>
+        <div class="alert alert-success" id="run-alert-ok"></div>
+        <button class="btn btn-primary" onclick="runPlan()" id="run-btn">▶ Execute Plan</button>
+        <button class="btn btn-secondary" onclick="clearRunResult()" style="margin-left:8px">Clear</button>
+      </div>
+      <pre class="code-block hidden" id="run-output"></pre>
+    </div>
+
+    <!-- Preview Page -->
+    <div class="page" id="page-preview">
+      <div class="page-title">Preview Plan</div>
+      <div class="card">
+        <div class="form-group">
+          <label>Plan File Path</label>
+          <input type="text" id="preview-path" placeholder="/path/to/plan.toml" />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label>Group</label><input type="text" id="preview-group" /></div>
+          <div class="form-group"><label>Tag</label><input type="text" id="preview-tag" /></div>
+        </div>
+        <div class="alert alert-error" id="preview-alert"></div>
+        <button class="btn btn-primary" onclick="previewPlan()">👁 Preview</button>
+      </div>
+      <pre class="code-block hidden" id="preview-output"></pre>
+    </div>
+
+    <!-- History Page -->
+    <div class="page" id="page-history">
+      <div class="page-title">Execution History</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <input type="number" id="history-limit" value="20" min="1" max="200" style="width:80px">
+        <button class="btn btn-secondary" onclick="loadHistory()">Refresh</button>
+        <button class="btn btn-secondary" onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="history-table">
+            <thead><tr><th>Run ID</th><th>Plan</th><th>Status</th><th>Duration</th><th>Dry</th><th>Timestamp</th></tr></thead>
+            <tbody id="history-tbody"><tr><td colspan="6" style="color:var(--muted)">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <pre class="code-block hidden" id="run-detail"></pre>
+    </div>
+
+    <!-- AI Planner Page -->
+    <div class="page" id="page-ai">
+      <div class="page-title">AI Plan Generator</div>
+      <div class="card">
+        <div class="form-group">
+          <label>Describe what you want to refactor</label>
+          <textarea id="ai-prompt" placeholder="e.g. Replace all TODO comments with DONE in markdown files, and update the API base URL from v1 to v2 in Python files"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Project directory (optional, improves accuracy)</label>
+          <input type="text" id="ai-context" placeholder="/path/to/project" />
+        </div>
+        <div class="alert alert-error"   id="ai-alert-err"></div>
+        <div class="alert alert-success" id="ai-alert-ok"></div>
+        <button class="btn btn-primary" onclick="generateAIPlan()">🤖 Generate Plan</button>
+      </div>
+      <div id="ai-result" style="display:none">
+        <div class="card">
+          <div class="card-title">Generated Plan</div>
+          <div id="ai-rules-list" style="margin-bottom:12px"></div>
+          <div class="form-group">
+            <label>Generated TOML</label>
+            <pre class="code-block" id="ai-toml" style="max-height:280px"></pre>
+          </div>
+          <button class="btn btn-secondary" onclick="copyToml()">📋 Copy TOML</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+const API_BASE = window.location.origin;
+let API_KEY = localStorage.getItem('aurelion_api_key') || '';
+
+// ── Page routing ───────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'history') loadHistory();
+}
+
+// ── API helper ─────────────────────────────────────────────────────────────────
+async function apiCall(method, path, body = null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (API_KEY) opts.headers['X-API-Key'] = API_KEY;
+  if (body)    opts.body = JSON.stringify(body);
+  const resp = await fetch(API_BASE + path, opts);
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+  return data;
+}
+
+// ── Status check ───────────────────────────────────────────────────────────────
+async function checkStatus() {
+  try {
+    const data = await apiCall('GET', '/status');
+    document.getElementById('status-dot').style.background = 'var(--green)';
+    document.getElementById('status-text').textContent = 'Server v' + data.version;
+    document.getElementById('version-tag').textContent = 'v' + data.version;
+    loadDashboard();
+  } catch(e) {
+    document.getElementById('status-dot').style.background = 'var(--red)';
+    document.getElementById('status-text').textContent = 'Disconnected';
+  }
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const data = await apiCall('GET', '/history?limit=50');
+    const runs = data.runs || [];
+
+    const total    = runs.length;
+    const success  = runs.filter(r => r.status === 'success').length;
+    const failed   = runs.filter(r => !['success','empty'].includes(r.status)).length;
+    const modified = runs.reduce((s, r) => s + ((r.totals||{}).files_modified||0), 0);
+
+    document.getElementById('s-total').textContent    = total;
+    document.getElementById('s-success').textContent  = success;
+    document.getElementById('s-failed').textContent   = failed;
+    document.getElementById('s-modified').textContent = modified;
+
+    const tbody = document.getElementById('recent-tbody');
+    if (runs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">No runs yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = runs.slice(0, 8).map(r => `
+      <tr>
+        <td style="color:var(--accent);max-width:160px;overflow:hidden;text-overflow:ellipsis">${r.run_id}</td>
+        <td>${r.plan_name || r.command || '—'}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td>${(r.duration||0).toFixed(2)}s</td>
+        <td>${r.dry_run ? '<span class="badge badge-muted">dry</span>' : ''}</td>
+        <td>${(r.timestamp||'').slice(0,19).replace('T',' ')}</td>
+      </tr>`).join('');
+  } catch(e) { console.error('Dashboard load error:', e); }
+}
+
+// ── History ────────────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const limit = document.getElementById('history-limit').value || 20;
+  try {
+    const data = await apiCall('GET', `/history?limit=${limit}`);
+    const runs = data.runs || [];
+    const tbody = document.getElementById('history-tbody');
+    if (!runs.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">No history.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = runs.map(r => `
+      <tr style="cursor:pointer" onclick="loadRunDetail('${r.run_id}')">
+        <td style="color:var(--accent)">${r.run_id}</td>
+        <td>${r.plan_name || r.command || '—'}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td>${(r.duration||0).toFixed(2)}s</td>
+        <td>${r.dry_run ? '<span class="badge badge-muted">dry</span>' : ''}</td>
+        <td>${(r.timestamp||'').slice(0,19).replace('T',' ')}</td>
+      </tr>`).join('');
+  } catch(e) {
+    document.getElementById('history-tbody').innerHTML =
+      `<tr><td colspan="6" style="color:var(--red)">Error: ${e.message}</td></tr>`;
+  }
+}
+
+async function loadRunDetail(runId) {
+  const el = document.getElementById('run-detail');
+  try {
+    const data = await apiCall('GET', `/history/${runId}`);
+    el.textContent = JSON.stringify(data, null, 2);
+    el.classList.remove('hidden');
+  } catch(e) { el.textContent = `Error: ${e.message}`; el.classList.remove('hidden'); }
+}
+
+async function exportCSV() {
+  try {
+    const resp = await fetch(API_BASE + '/history/export/csv', {
+      headers: API_KEY ? {'X-API-Key': API_KEY} : {}
+    });
+    const blob  = await resp.blob();
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
+    a.href      = url;
+    a.download  = 'aurelion_history.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { alert('CSV export failed: ' + e.message); }
+}
+
+// ── Run Plan ───────────────────────────────────────────────────────────────────
+async function runPlan() {
+  const btn    = document.getElementById('run-btn');
+  const output = document.getElementById('run-output');
+  const errEl  = document.getElementById('run-alert-err');
+  const okEl   = document.getElementById('run-alert-ok');
+  [errEl, okEl].forEach(e => e.classList.remove('show'));
+
+  const planPath = document.getElementById('run-path').value.trim();
+  if (!planPath) { showAlert('run-alert-err', 'Plan path is required.'); return; }
+
+  btn.innerHTML = '<span class="spinner"></span> Running…';
+  btn.disabled  = true;
+  output.classList.add('hidden');
+
+  try {
+    const data = await apiCall('POST', '/run', {
+      plan_path: planPath,
+      dry_run:   document.getElementById('run-dry').checked,
+      strict:    document.getElementById('run-strict').checked,
+      group:     document.getElementById('run-group').value.trim() || null,
+      tag:       document.getElementById('run-tag').value.trim()   || null,
+    });
+    output.textContent = JSON.stringify(data, null, 2);
+    output.classList.remove('hidden');
+    showAlert('run-alert-ok', `✔ Plan executed — ${data.summary?.files_modified||0} files modified, ${data.summary?.rules_total||0} rules run.`);
+  } catch(e) {
+    showAlert('run-alert-err', e.message);
+  } finally {
+    btn.innerHTML = '▶ Execute Plan';
+    btn.disabled  = false;
+  }
+}
+
+function clearRunResult() {
+  document.getElementById('run-output').classList.add('hidden');
+  document.getElementById('run-alert-err').classList.remove('show');
+  document.getElementById('run-alert-ok').classList.remove('show');
+}
+
+// ── Preview ────────────────────────────────────────────────────────────────────
+async function previewPlan() {
+  const out   = document.getElementById('preview-output');
+  const errEl = document.getElementById('preview-alert');
+  errEl.classList.remove('show');
+
+  const planPath = document.getElementById('preview-path').value.trim();
+  if (!planPath) { showAlert('preview-alert', 'Plan path is required.'); return; }
+
+  try {
+    const data = await apiCall('POST', '/preview', {
+      plan_path: planPath,
+      group: document.getElementById('preview-group').value.trim() || null,
+      tag:   document.getElementById('preview-tag').value.trim()   || null,
+    });
+    out.textContent = JSON.stringify(data, null, 2);
+    out.classList.remove('hidden');
+  } catch(e) {
+    showAlert('preview-alert', e.message);
+  }
+}
+
+// ── AI Planner ─────────────────────────────────────────────────────────────────
+async function generateAIPlan() {
+  const prompt = document.getElementById('ai-prompt').value.trim();
+  const errEl  = document.getElementById('ai-alert-err');
+  const okEl   = document.getElementById('ai-alert-ok');
+  [errEl, okEl].forEach(e => e.classList.remove('show'));
+
+  if (!prompt) { showAlert('ai-alert-err', 'Please enter an instruction.'); return; }
+
+  try {
+    const data = await apiCall('POST', '/ai', {
+      prompt:      prompt,
+      context_dir: document.getElementById('ai-context').value.trim() || null,
+    });
+    if (!data.success) throw new Error(data.error || 'Generation failed');
+
+    document.getElementById('ai-toml').textContent    = data.plan_toml || '';
+    document.getElementById('ai-rules-list').innerHTML = (data.rules||[]).map(r =>
+      `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px">
+        <span class="badge badge-blue">${r.type}</span>
+        <span style="margin:0 8px;color:var(--text)">${r.name}</span>
+        <span style="color:var(--muted)">${r.target}</span>
+      </div>`
+    ).join('');
+    document.getElementById('ai-result').style.display = 'block';
+    showAlert('ai-alert-ok', `✔ Generated plan "${data.plan_name}" with ${data.rules_count} rules.`);
+  } catch(e) { showAlert('ai-alert-err', e.message); }
+}
+
+function copyToml() {
+  const text = document.getElementById('ai-toml').textContent;
+  navigator.clipboard.writeText(text).then(() => alert('TOML copied!'));
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function statusBadge(status) {
+  const map = { success:'badge-green', partial:'badge-yellow', aborted:'badge-red', failed:'badge-red', running:'badge-blue', empty:'badge-muted' };
+  return `<span class="badge ${map[status]||'badge-muted'}">${status}</span>`;
+}
+
+function showAlert(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+checkStatus();
+setInterval(checkStatus, 30000);
+</script>
+</body>
+</html>

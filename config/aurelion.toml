@@ -1,0 +1,50 @@
+# ══════════════════════════════════════════════════════════════
+#  Aurelion Refactor Engine v3 — Configuration File
+#  Place as aurelion.toml in your project root.
+#  Use with:  aurelion --config aurelion.toml <command>
+# ══════════════════════════════════════════════════════════════
+
+[aurelion]
+
+# File encoding for text operations
+encoding = "utf-8"
+
+# Case-sensitive text matching by default
+case_sensitive = true
+
+# Parallel worker threads (1 = serial, >1 = parallel per-rule)
+workers = 4
+
+# Preview without applying (safe mode)
+dry_run = false
+
+# Disable automatic backup (not recommended)
+no_backup = false
+
+# Default inject mode: replace | prepend | append
+inject_mode = "replace"
+
+# Abort plan execution on first rule error
+strict_mode = true
+
+# Directories always excluded from recursive traversal
+exclude_dirs = [
+    ".git",
+    "__pycache__",
+    "node_modules",
+    ".venv",
+    "venv",
+    "backups",
+    "dist",
+    "build",
+    ".idea",
+    ".vscode",
+]
+
+# Specific paths to exclude (relative or absolute)
+exclude_paths = []
+
+# ── Safety rules ─────────────────────────────────────────────
+[safety]
+# Set true to process ALL files regardless of type (dangerous!)
+include_binary = false

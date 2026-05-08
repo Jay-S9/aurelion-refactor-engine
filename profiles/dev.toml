@@ -1,0 +1,23 @@
+# Aurelion — Development Profile
+# Relaxed settings for local development iteration.
+
+[profile]
+name        = "dev"
+description = "Development environment — verbose, no-backup, workers=4"
+
+[config]
+encoding       = "utf-8"
+workers        = 4
+dry_run        = false
+no_backup      = true
+strict_mode    = false
+include_binary = false
+exclude_dirs   = [".git", "__pycache__", "node_modules", ".venv", "backups", "dist", "build"]
+
+[paths]
+project_root   = "."
+plans_dir      = "./plans"
+
+[rules]
+default_group  = "dev"
+default_tags   = ["dev"]

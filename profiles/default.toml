@@ -1,0 +1,29 @@
+# Aurelion Refactor Engine v6 — Default Profile
+# Copy and customise this file to create a new profile.
+
+[profile]
+name        = "default"
+description = "Default Aurelion configuration"
+
+[config]
+encoding       = "utf-8"
+workers        = 1
+dry_run        = false
+no_backup      = false
+strict_mode    = true
+include_binary = false
+exclude_dirs   = [".git", "__pycache__", "node_modules", ".venv", "backups"]
+exclude_paths  = []
+
+[paths]
+project_root   = "."
+plans_dir      = "./plans"
+output_dir     = "./output"
+templates_dir  = "./templates"
+
+[history]
+history_dir    = "./history"
+
+[rules]
+default_group  = ""
+default_tags   = []

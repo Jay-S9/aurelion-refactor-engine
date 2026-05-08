@@ -1,0 +1,23 @@
+# Aurelion — Production Profile
+# Conservative settings for production deployments.
+
+[profile]
+name        = "prod"
+description = "Production environment — strict, backup-always, workers=1"
+
+[config]
+encoding       = "utf-8"
+workers        = 1
+dry_run        = false
+no_backup      = false
+strict_mode    = true
+include_binary = false
+exclude_dirs   = [".git", "__pycache__", "node_modules", ".venv", "backups"]
+
+[paths]
+project_root   = "."
+plans_dir      = "./plans"
+
+[rules]
+default_group  = "prod"
+default_tags   = ["production"]
