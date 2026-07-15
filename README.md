@@ -1,4 +1,6 @@
-# ⚡ Aurelion Refactor Engine
+# Aurelion Refactor Engine
+
+Aurelion Refactor Engine is a zero-dependency Python CLI that bulk-refactors codebases via text replacement, file operations, and AI-generated migration plans — with dry-run preview, automatic backups, and a local Web UI.
 
 > **A zero-dependency Python CLI that turns plain-English instructions into
 > safe, repeatable codebase migrations — bulk text replacement, file
