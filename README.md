@@ -153,6 +153,19 @@ aurelion profile  list
 
 ---
 
+## How this compares
+
+| | Aurelion | sed/ripgrep-replace | IDE refactor (PyCharm/IntelliJ) | AST tools (emend/refactor) |
+|---|---|---|---|---|
+| Zero dependencies | ✅ (stdlib, 3.11+) | ✅ | ❌ (needs the IDE) | ❌ (needs Rust/tree-sitter build) |
+| Bulk, multi-file, dry-run + backup | ✅ | Partial | ✅ | ✅ |
+| Plain-English → migration plan (AI) | ✅ | ❌ | ❌ | ❌ |
+| DAG-based multi-step migration plans | ✅ | ❌ | ❌ | Partial |
+| Local Web UI + REST API | ✅ | ❌ | ❌ | Partial (MCP only) |
+| Best for | scripted, repeatable, multi-repo migrations | one-off text swaps | interactive single-project edits | AST-precise, symbol-aware refactors |
+
+---
+
 ## Configuration
 
 **`aurelion.toml`** (project root or `--config FILE`):
