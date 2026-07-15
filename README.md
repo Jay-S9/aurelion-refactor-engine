@@ -1,8 +1,9 @@
 # ⚡ Aurelion Refactor Engine
 
-> **Production-grade codebase refactoring automation. Bulk text replacement,
-> file operations, AI-powered plan generation, REST API, Web UI — zero
-> mandatory dependencies.**
+> **A zero-dependency Python CLI that turns plain-English instructions into
+> safe, repeatable codebase migrations — bulk text replacement, file
+> operations, DAG-based multi-step plans, a REST API, and a local Web UI,
+> with no packages to install on Python 3.11+.**
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
